@@ -10,13 +10,38 @@
 		zephyr,shell-uart = &uart0;
 		zephyr,sram = &ram0;
 	};
+	cpus {
+		/delete-node/ cpu@2;
+		/delete-node/ cpu@3;
+		/delete-node/ cpu@4;
+		/delete-node/ cpu@5;
+		/delete-node/ cpu@6;
+		/delete-node/ cpu@7;
+	};
 };
 
+/*
 &uart0 {
 	status = "okay";
 };
+
+*/
 
 &ram0 {
 	reg = <0x80000000 0x40000>;
 };
 
+&plic {
+	interrupts-extended = <&hlic0 0x0b &hlic0 0x09
+			       &hlic1 0x0b &hlic1 0x09>;
+};
+
+&clint {
+	interrupts-extended = <&hlic0 0x03 &hlic0 0x07
+			       &hlic1 0x03 &hlic1 0x07>;
+};
+
+&mtimer {
+	interrupts-extended = <&hlic0 7
+			       &hlic1 7>;
+};
