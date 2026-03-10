@@ -18,14 +18,17 @@
 		/delete-node/ cpu@6;
 		/delete-node/ cpu@7;
 	};
-};
+	uart_new: uart@70000000 {
+		compatible = "pydrofoil,nrf-uart";
+		reg = <0x70000000 0x100>;
+	};
 
-/*
+};
+	
+
 &uart0 {
 	status = "okay";
 };
-
-*/
 
 &ram0 {
 	reg = <0x80000000 0x40000>;
