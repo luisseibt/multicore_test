@@ -21,6 +21,7 @@
 	reg = <0x80000000 0x20000>;
 };
 
+/*
 &clint {
 	status = "disabled";
 };
@@ -28,3 +29,9 @@
 &mtimer {
 	status = "disabled";
 };
+
+&plic {
+	status = "okay";
+	interrupts-extended = <&hlic0 0x0b>; 
+};
+*/
