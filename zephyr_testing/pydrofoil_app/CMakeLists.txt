@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.20.0)
 # 2. Inject your custom out-of-tree hardware modules BEFORE finding Zephyr.
 # This ensures Zephyr's build system discovers your custom_uart Kconfig 
 # and CMakeLists.txt during its initial workspace scan.
-list(APPEND EXTRA_ZEPHYR_MODULES /home/seibt/thesis/bare_metal_tests/zephyr_testing/zephyr_modules/custom_uart)
+list(APPEND EXTRA_ZEPHYR_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/../zephyr_modules/custom_uart)
 
 
 # 3. Pull in the Zephyr OS build system
