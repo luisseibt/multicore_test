@@ -1,5 +1,3 @@
-# ~/thesis/bare_metal_tests/soc/pydrofoil/CMakeLists.txt
-
 # Tell Zephyr to use the standard RISC-V linker script
 set(SOC_LINKER_SCRIPT ${ZEPHYR_BASE}/include/zephyr/arch/riscv/common/linker.ld CACHE INTERNAL "")
 
