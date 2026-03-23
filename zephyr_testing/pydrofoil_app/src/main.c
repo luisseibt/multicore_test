@@ -1,14 +1,21 @@
-/*
- * Copyright (c) 2012-2014 Wind River Systems, Inc.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
+#include <stdint.h>
 #include <stdio.h>
+
+/* Use 'used' and ensure they are global (no static) */
+__attribute__((used, section(".data"), aligned(16)))
+volatile uint64_t tohost = 0;
+
+__attribute__((used, section(".data"), aligned(16)))
+volatile uint64_t fromhost = 0;
 
 int main(void)
 {
-	printf("Hello World! %s\n", CONFIG_BOARD_TARGET);
+    /* FAKE USE: This prevents the linker from garbage collecting the symbols */
+    if (tohost > 0) {
+        printf("This will never happen, but the linker doesn't know that: %llu", tohost);
+    }
 
-	return 0;
+    printf("Hello World! %s\n", CONFIG_BOARD_TARGET);
+
+    return 0;
 }
