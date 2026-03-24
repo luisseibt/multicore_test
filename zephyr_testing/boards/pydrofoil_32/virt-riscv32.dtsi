@@ -14,5 +14,9 @@
 			riscv,isa-base = "rv32i";
 			riscv,isa-extensions = "i", "m", "a", "c", "zicsr", "zifencei";
 		};
+		cpu@1 {
+			riscv,isa-base = "rv32i";
+			riscv,isa-extensions = "i", "m", "a", "c", "zicsr", "zifencei";
+		};
 	};
 };

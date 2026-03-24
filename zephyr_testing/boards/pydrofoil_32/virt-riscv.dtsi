@@ -35,6 +35,19 @@
 				interrupt-controller;
 			};
 		};
+		cpu@1 {
+			device_type = "cpu";
+			reg = <0x01>;
+			status = "okay";
+			compatible = "qemu,riscv-virt", "riscv";
+
+			hlic1: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <0x01>;
+				interrupt-controller;
+			};
+		};
 	};
 
 	ram0: memory@80000000 {
@@ -59,9 +72,9 @@
 			#interrupt-cells = <0x02>;
 		};
 
-		clint: clint@2000000 {
+		clint: clint@80400000 {
 			compatible = "sifive,clint0";
-			reg = <0x2000000 0x10000>;
+			reg = <0x80400000 0x10000>;
 			interrupts-extended = <&hlic0 0x03 &hlic0 0x07>;
 		};
 
