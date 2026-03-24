@@ -5,3 +5,5 @@ west build -b pydrofoil_32 /home/seibt/thesis/multicore_test/zephyr_testing/pydr
 cd /home/seibt/thesis/multicore_test/zephyr_testing/benchmark
 gdb-multiarch -x gdb_cmd.gdb build/zephyr/zephyr.elf
 
+
+# this zephyr version is compatible with branch: 32bit_2cores on vcml-pydrofoil 
