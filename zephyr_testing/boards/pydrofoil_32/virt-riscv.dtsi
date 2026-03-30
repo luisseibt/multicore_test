@@ -48,10 +48,10 @@
 		compatible = "simple-bus";
 		ranges;
 
-		plic: interrupt-controller@80021000 {
+		plic: interrupt-controller@80410000 {
 			riscv,max-priority = <7>;
 			riscv,ndev = <1024>;
-			reg = <0x80021000 0x202000>;
+			reg = <0x80410000 0x202000>;
 			interrupts-extended = <&hlic0 0x0b &hlic0 0x09>;
 			interrupt-controller;
 			compatible = "sifive,plic-1.0.0";

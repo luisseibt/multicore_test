@@ -9,16 +9,48 @@
 		zephyr,console = &uart_new;
 		zephyr,shell-uart = &uart_new;
 		zephyr,sram = &ram0;
-	};
-	uart_new: uart@80020000 {
-		compatible = "pydrofoil,nrf-uart";
-		reg = <0x80020000 0x1000>;
+		zephyr,display = &ramfb0; 
 	};
 
+	
+	fwcfg0: fw-cfg@80700000 {
+		compatible = "qemu,fw-cfg-mmio";
+		reg = <0x80700000 0x18>;
+		status = "okay";
+	};
+
+	/* 3. Reserve a block of raw RAM for the pixels */
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		/* 800 x 480 x 4 bytes = ~1.5 MB. We reserve 2 MB just to be safe. */
+		ramfb_mem: framebuffer@80800000 {
+			reg = <0x80800000 0x00400000>;
+			no-map; /* Tells the OS not to use this for general heap memory */
+		};
+	};
+
+	/* 4. The actual Display Device node */
+	ramfb0: ramfb {
+		compatible = "qemu,ramfb";
+		memory-region = <&ramfb_mem>;
+		width = <800>;
+		height = <480>;
+		fwcfg = <&fwcfg0>;
+		status = "okay";
+	};
+
+	uart_new: uart@80400000 {
+		compatible = "pydrofoil,nrf-uart";
+		reg = <0x80400000 0x1000>;
+	};
 };
 
 &ram0 {
-	reg = <0x80002000 0x20000>;
+	/* Increase from 0x20000 (128KB) to 0x300000 (3MB) */
+	reg = <0x80002000 0x300000>; 
 };
 
 /*
@@ -30,8 +62,26 @@
 	status = "disabled";
 };
 
+
+
+*/
 &plic {
-	status = "okay";
+	status = "disabled";
 	interrupts-extended = <&hlic0 0x0b>; 
 };
+
+
+
+
+
+/*
+/*
+	ramfb0: ramfb {
+		compatible = "qemu,ramfb";
+		fwcfg = <&fwcfg0>;
+		memory-region = <&ramfb_mem>;
+		width = <800>;
+		height = <480>;
+		status = "okay";
+	};
 */
