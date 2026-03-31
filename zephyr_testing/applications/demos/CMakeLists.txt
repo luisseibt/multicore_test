@@ -3,11 +3,14 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-# =========================================================================
-# UGLY HACK: Force-feed the custom UART module into the build system
-# =========================================================================
-list(APPEND ZEPHYR_EXTRA_MODULES "/home/seibt/thesis/multicore_test/zephyr_testing/zephyr_modules/custom_uart")
-list(APPEND EXTRA_ZEPHYR_MODULES "/home/seibt/thesis/multicore_test/zephyr_testing/zephyr_modules/custom_display")
+list(APPEND BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+list(APPEND SOC_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+
+set(CUSTOM_UART_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../zephyr_modules/custom_uart")
+set(CUSTOM_DISPLAY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../zephyr_modules/custom_display")
+
+list(APPEND ZEPHYR_EXTRA_MODULES ${CUSTOM_UART_DIR})
+list(APPEND ZEPHYR_EXTRA_MODULES ${CUSTOM_DISPLAY_DIR})
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(lvgl_sample)

@@ -1,24 +1,15 @@
-# west build command
-cd ~/thesis/zephyrproject/zephyr
-west build -b pydrofoil_32 /home/seibt/thesis/multicore_test/zephyr_testing/pydrofoil_app --pristine -DBOARD_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -DSOC_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -d /home/seibt/thesis/multicore_test/zephyr_testing/benchmark/build
+# building the display benchmark application:
 
-# gdb command:
-cd /home/seibt/thesis/multicore_test/zephyr_testing/benchmark
+## -DBOARD_ROOT and -DSOC_ROOT are specified in the applications cmake
+cd <PATH_TO_ZEPHYR_PROJECT>
+source .venv/bin/activate
+cd zephyr
+
+west build -b pydrofoil_32 <PATH_TO_MULTICORE_TEST>/zephyr_testing/applications/demos --pristine -d <PATH_TO_MULTICORE_TEST>/zephyr_testing/benchmark/build
+
+## example:
+west build -b pydrofoil_32 /home/seibt/thesis/multicore_test/zephyr_testing/applications/demos --pristine -d /home/seibt/thesis/multicore_test/zephyr_testing/benchmark/build
+
+# debugging
+cd <PATH_TO_MULTICORE_TEST>/zephyr_testing/benchmark
 gdb-multiarch -x gdb_cmd.gdb build/zephyr/zephyr.elf
-
-
-
-
-
-# west build demo
-cd ~/thesis/zephyrproject/zephyr
-west build -b pydrofoil_32 samples/modules/lvgl/demos --pristine -DBOARD_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -DSOC_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -d /home/seibt/thesis/multicore_test/zephyr_testing/benchmark/build
-
-# demo gdb command:
-cd ~/thesis/zephyrproject/zephyr/samples/modules/lvgl/demos
-
-gdb-multiarch -x gdb_cmd.gdb /home/seibt/thesis/multicore_test/zephyr_testing/benchmark/build/zephyr/zephyr.elf
-
-
-
-west build -b pydrofoil_32 /home/seibt/thesis/multicore_test/zephyr_testing/applications/demos --pristine -DBOARD_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -DSOC_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -d /home/seibt/thesis/multicore_test/zephyr_testing/benchmark/build
