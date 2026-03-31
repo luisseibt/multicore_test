@@ -34,7 +34,7 @@
 
 	/* 4. The actual Display Device node */
 	ramfb0: ramfb {
-		compatible = "qemu,ramfb";
+		compatible = "custom,display";
 		memory-region = <&ramfb_mem>;
 		width = <800>;
 		height = <480>;

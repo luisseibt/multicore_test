@@ -1,0 +1,26 @@
+description: Custom VCML RAM Framebuffer Display
+
+compatible: "custom,display"
+
+include: base.yaml
+
+properties:
+  width:
+    type: int
+    required: true
+    description: Width of the framebuffer in pixels
+
+  height:
+    type: int
+    required: true
+    description: Height of the framebuffer in pixels
+
+  memory-region:
+    type: phandle
+    required: true
+    description: Pointer to the reserved RAM region for the framebuffer
+
+  fwcfg:
+    type: phandle
+    required: true
+    description: Pointer to the QEMU/VCML fwcfg device node

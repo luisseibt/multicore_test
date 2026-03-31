@@ -1,0 +1,7 @@
+config CUSTOM_DISPLAY
+    bool "Custom VCML RAM Framebuffer Display Driver"
+    default y
+    depends on DT_HAS_CUSTOM_DISPLAY_ENABLED
+    select DISPLAY_SYSMEM if LVGL
+    help
+      Enable the out-of-tree RAM framebuffer driver for VCML simulations.
