@@ -19,8 +19,3 @@ properties:
     type: phandle
     required: true
     description: Pointer to the reserved RAM region for the framebuffer
-
-  fwcfg:
-    type: phandle
-    required: true
-    description: Pointer to the QEMU/VCML fwcfg device node

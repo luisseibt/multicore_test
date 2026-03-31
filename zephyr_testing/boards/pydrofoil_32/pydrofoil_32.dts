@@ -13,13 +13,7 @@
 	};
 
 	
-	fwcfg0: fw-cfg@80700000 {
-		compatible = "qemu,fw-cfg-mmio";
-		reg = <0x80700000 0x18>;
-		status = "okay";
-	};
-
-	/* 3. Reserve a block of raw RAM for the pixels */
+	/* Reserve a block of raw RAM for the pixels */
 	reserved-memory {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -32,13 +26,12 @@
 		};
 	};
 
-	/* 4. The actual Display Device node */
+	/* The actual Display Device node */
 	ramfb0: ramfb {
 		compatible = "custom,display";
 		memory-region = <&ramfb_mem>;
 		width = <800>;
 		height = <480>;
-		fwcfg = <&fwcfg0>;
 		status = "okay";
 	};
 
@@ -53,35 +46,8 @@
 	reg = <0x80002000 0x300000>; 
 };
 
-/*
-&clint {
-	status = "disabled";
-};
-
-&mtimer {
-	status = "disabled";
-};
-
-
-
-*/
 &plic {
 	status = "disabled";
 	interrupts-extended = <&hlic0 0x0b>; 
 };
 
-
-
-
-
-/*
-/*
-	ramfb0: ramfb {
-		compatible = "qemu,ramfb";
-		fwcfg = <&fwcfg0>;
-		memory-region = <&ramfb_mem>;
-		width = <800>;
-		height = <480>;
-		status = "okay";
-	};
-*/

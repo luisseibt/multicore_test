@@ -21,3 +21,4 @@ gdb-multiarch -x gdb_cmd.gdb /home/seibt/thesis/multicore_test/zephyr_testing/be
 
 
 
+west build -b pydrofoil_32 /home/seibt/thesis/multicore_test/zephyr_testing/applications/demos --pristine -DBOARD_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -DSOC_ROOT=/home/seibt/thesis/multicore_test/zephyr_testing -d /home/seibt/thesis/multicore_test/zephyr_testing/benchmark/build
