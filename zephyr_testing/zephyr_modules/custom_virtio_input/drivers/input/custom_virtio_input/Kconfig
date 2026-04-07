@@ -1,0 +1,7 @@
+config CUSTOM_VIRTIO_INPUT
+    bool "Custom Virtio Input Driver"
+    default y
+    depends on DT_HAS_CUSTOM_VIRTIO_INPUT_ENABLED
+    select INPUT
+    help
+      Enable the out-of-tree Virtio Input driver (keyboard/mouse) for VCML.

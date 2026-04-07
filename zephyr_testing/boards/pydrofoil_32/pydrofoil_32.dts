@@ -39,6 +39,20 @@
 		compatible = "pydrofoil,nrf-uart";
 		reg = <0x80400000 0x1000>;
 	};
+
+	virtio0: virtio@80d00000 {
+		compatible = "custom,virtio-mmio";
+		reg = <0x80D00000 0x1000>;
+		interrupt-parent = <&plic>;
+		interrupts = <16 1>;
+		status = "okay";
+
+		/* Here is the new Input device sitting on the bus! */
+		vinput: virtio_input {
+			compatible = "custom,virtio-input";
+			status = "okay";
+		};
+	};
 };
 
 &ram0 {
@@ -47,7 +61,7 @@
 };
 
 &plic {
-	status = "disabled";
-	interrupts-extended = <&hlic0 0x0b>; 
+    status = "okay";
+    riscv,ndev = <32>; /* <--- Add this! Shrink from 1024 to 32 IRQs */
+    interrupts-extended = <&hlic0 0x0b>; 
 };
-

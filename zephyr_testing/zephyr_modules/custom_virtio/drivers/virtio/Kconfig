@@ -1,0 +1,2 @@
+# zephyr_modules/custom_virtio/drivers/virtio/Kconfig
+rsource "custom_virtio/Kconfig"

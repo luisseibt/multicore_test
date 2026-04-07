@@ -1,0 +1,5 @@
+description: Custom Virtio Input Device
+
+compatible: "custom,virtio-input"
+
+include: base.yaml

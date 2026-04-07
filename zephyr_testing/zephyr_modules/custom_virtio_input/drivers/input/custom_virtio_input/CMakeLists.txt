@@ -1,0 +1,2 @@
+zephyr_library()
+zephyr_library_sources_ifdef(CONFIG_CUSTOM_VIRTIO_INPUT custom_virtio_input.c)

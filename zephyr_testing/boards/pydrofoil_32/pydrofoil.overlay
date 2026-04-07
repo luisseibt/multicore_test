@@ -1,6 +1,6 @@
 /delete-node/ &clint;
 /delete-node/ &mtimer;
-/delete-node/ &plic;
+# /delete-node/ &plic;
 / {
     /* We are modifying the root of the device tree */
     reserved-memory {

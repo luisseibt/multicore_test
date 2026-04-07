@@ -8,9 +8,13 @@ list(APPEND SOC_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 set(CUSTOM_UART_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../zephyr_modules/custom_uart")
 set(CUSTOM_DISPLAY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../zephyr_modules/custom_display")
+set(CUSTOM_VIRTIO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../zephyr_modules/custom_virtio")
+set(CUSTOM_VIRTIO_INPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../zephyr_modules/custom_virtio_input")
 
 list(APPEND ZEPHYR_EXTRA_MODULES ${CUSTOM_UART_DIR})
 list(APPEND ZEPHYR_EXTRA_MODULES ${CUSTOM_DISPLAY_DIR})
+list(APPEND ZEPHYR_EXTRA_MODULES ${CUSTOM_VIRTIO_DIR})
+list(APPEND ZEPHYR_EXTRA_MODULES ${CUSTOM_VIRTIO_INPUT_DIR})
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(lvgl_sample)

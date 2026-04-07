@@ -1,0 +1,14 @@
+description: Custom Virtio MMIO Transport Device
+
+compatible: "custom,virtio-mmio"
+
+include: base.yaml
+
+properties:
+  reg:
+    required: true
+    description: Physical memory address and size of the MMIO registers
+
+  interrupts:
+    required: true
+    description: The hardware interrupt line connected to the PLIC

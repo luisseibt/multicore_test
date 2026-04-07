@@ -1,0 +1,6 @@
+config CUSTOM_VIRTIO_MMIO
+    bool "Custom Virtio MMIO Transport Driver"
+    default y
+    depends on DT_HAS_CUSTOM_VIRTIO_MMIO_ENABLED
+    help
+      Enable the out-of-tree Virtio MMIO transport driver for VCML simulations.

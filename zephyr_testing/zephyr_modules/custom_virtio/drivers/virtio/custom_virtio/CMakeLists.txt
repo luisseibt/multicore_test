@@ -1,0 +1,3 @@
+# zephyr_modules/custom_virtio/drivers/virtio/custom_virtio/CMakeLists.txt
+zephyr_library()
+zephyr_library_sources_ifdef(CONFIG_CUSTOM_VIRTIO_MMIO virtio_mmio.c)
