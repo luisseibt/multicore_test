@@ -69,6 +69,7 @@ struct vq_used {
 /* The Driver Data containing the actual RAM buffers */
 struct virtio_input_data {
     mem_addr_t mmio_base;
+    uint16_t last_used_idx;
 
     /* ALIGNED Vring Structures in RAM */
     struct vq_desc desc[QUEUE_SIZE] __aligned(16);
@@ -78,6 +79,49 @@ struct virtio_input_data {
     /* The actual buffers where VCML writes keystrokes */
     struct virtio_input_event events[QUEUE_SIZE];
 };
+
+/* This function is called by the parent MMIO driver when the IRQ fires */
+void virtio_input_isr_handler(const struct device *dev)
+{
+    struct virtio_input_data *data = dev->data;
+    uintptr_t base = (uintptr_t)data->mmio_base;
+    bool needs_notify = false;
+
+    /* Loop as long as VCML has written new items to the Used ring */
+    while (data->last_used_idx != data->used.idx) {
+        
+        /* 1. Find the new item in the circular Used ring */
+        uint16_t used_ring_idx = data->last_used_idx % QUEUE_SIZE;
+        uint32_t desc_id = data->used.ring[used_ring_idx].id;
+        
+        /* 2. Read the actual event data from RAM */
+        struct virtio_input_event *evt = &data->events[desc_id];
+
+        /* 3. Translate Virtio Linux EV codes to Zephyr Input API */
+        if (evt->type == 1) { /* EV_KEY (Button Click) */
+            /* code 272 is usually BTN_LEFT (Left Mouse Button) */
+            input_report_key(dev, evt->code, evt->value, true, K_NO_WAIT);
+        } 
+        else if (evt->type == 3) { /* EV_ABS (Absolute X/Y Coordinates) */
+            /* code 0 is X axis, code 1 is Y axis */
+            input_report_abs(dev, evt->code, evt->value, true, K_NO_WAIT);
+        }
+
+        /* 4. THE RECYCLE PHASE: Give the empty buffer back to VCML */
+        uint16_t avail_ring_idx = data->avail.idx % QUEUE_SIZE;
+        data->avail.ring[avail_ring_idx] = desc_id;
+        
+        /* Move our pointers forward */
+        data->last_used_idx++;
+        data->avail.idx++;
+        needs_notify = true;
+    }
+
+    /* 5. Ring the doorbell to tell VCML we dropped empty buffers in the Available Ring */
+    if (needs_notify) {
+        sys_write32(0, base + VIRTIO_MMIO_QUEUE_NOTIFY);
+    }
+}
 
 static int virtio_input_init(const struct device *dev)
 {

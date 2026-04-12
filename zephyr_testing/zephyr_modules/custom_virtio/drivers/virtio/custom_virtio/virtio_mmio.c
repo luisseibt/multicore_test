@@ -2,7 +2,6 @@
  * Custom Virtio MMIO Transport Driver for VCML
  * SPDX-License-Identifier: Apache-2.0
  */
-
 #define DT_DRV_COMPAT custom_virtio_mmio
 
 #include <zephyr/kernel.h>
@@ -12,6 +11,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/irq.h>
 
+extern void virtio_input_isr_handler(const struct device *dev);
 LOG_MODULE_REGISTER(virtio_mmio, LOG_LEVEL_DBG);
 
 /* Virtio MMIO Register Offsets (Matching VCML Model) */
@@ -54,16 +54,15 @@ struct virtio_mmio_data {
 static void virtio_mmio_isr(const struct device *dev)
 {
     const struct virtio_mmio_config *cfg = dev->config;
-    
-    /* Read interrupt status */
     uint32_t status = sys_read32(cfg->base_addr + VIRTIO_MMIO_INTERRUPT_STATUS);
-    
-    /* Acknowledge the interrupt immediately */
     sys_write32(status, cfg->base_addr + VIRTIO_MMIO_INTERRUPT_ACK);
 
     if (status & 0x01) {
-        LOG_DBG("Virtqueue Interrupt Received!");
-        /* Here is where you would check your shared RAM for new data */
+        /* Virtqueue Update! Find the child Input Device and wake it up. */
+        const struct device *input_dev = DEVICE_DT_GET_ANY(custom_virtio_input);
+        if (input_dev != NULL && device_is_ready(input_dev)) {
+            virtio_input_isr_handler(input_dev);
+        }
     }
     
     if (status & 0x02) {
