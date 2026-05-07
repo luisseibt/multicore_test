@@ -1,20 +1,29 @@
-/* link.ld */
-OUTPUT_ARCH( "riscv" )
-ENTRY( _start )
+ENTRY(_start)
+
+MEMORY
+{
+    RAM (rwx) : ORIGIN = 0x80000000, LENGTH = 128K
+}
 
 SECTIONS
 {
-  . = 0x80000000; /* RAM Start */
-  
-  .text : {
-    *(.text)      /* Code */
-  }
-  
-  .data : {
-    *(.data)      /* Global Variables */
-  }
-  
-  .bss : {
-    *(.bss)       /* Uninitialized Variables */
-  }
+    .text :
+    {
+        *(.text*)
+        *(.rodata*)
+    } > RAM
+
+    .data :
+    {
+        *(.data*)
+    } > RAM
+
+    .bss :
+    {
+        *(.bss*)
+        *(COMMON)
+    } > RAM
+
+    . = ALIGN(16);
+    _stack_top = ORIGIN(RAM) + LENGTH(RAM);
 }
