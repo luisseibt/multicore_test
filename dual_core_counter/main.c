@@ -23,7 +23,8 @@
 #define PLIC_CLAIM(ctx) (*(volatile uint32_t*)(PLIC_BASE + 0x200004 + (ctx)*0x1000))
 
 volatile int irq_flag = 0;
-volatile uint32_t* tohost = (uint32_t*)0x80001000;
+// Move the kill switch to an unmapped hardware address!
+volatile uint32_t* tohost = (uint32_t*)0x20000000;
 
 // Synchronization flags
 volatile int uart_ready = 0;
@@ -83,40 +84,37 @@ void trap_dispatch(void) {
     if (is_interrupt && code == 11) m_irq_handler();
 }
 
+// ... [Keep all your #defines, global variables, and init functions the same] ...
+
+volatile int core0_finished = 0; // Let's add this for clarity
+
 void main(int hartid) {
-    int i;
+    // Let's use 100 Million for the benchmark (1 Billion might take a very long time)
+    long TARGET = 30000; 
 
     if (hartid == 0) {
         // --- CORE 0 (Master) ---
         uart_init();
+        plic_init();
         
-        // Signal Core 1 that the UART config is stable and ready to read
+        // Signal Core 1 to wake up
         uart_ready = 1; 
 
-        plic_init();
-
         uart_print("Booting Core 0...\n");
+        uart_print("Both cores starting heavy math...\n");
 
-        // Enable external interrupts
-        csr_set_mie(1 << 11);     // MEIE
-        csr_set_mstatus(1 << 3);  // global MIE
+        // 1. DO HEAVY MATH
+        for (volatile long i = 0; i < TARGET; i++) {}
+        
+        // 2. Mark Core 0 as done
+        core0_finished = 1;
 
-        // 1. Wait for the UART interrupt
-        while (!irq_flag) {
-            asm volatile("wfi");
-        }
-        uart_print("\nInterrupt received! Doing math...\n");
-
-        // 2. Count 10 times
-        for (i = 0; i < 10; i++) {
-            counter_core0++;
-        }
-
-        // 3. Wait for Core 1 to finish its job
+        // 3. Wait for Core 1 to finish its math
         while (core1_finished == 0) {
             asm volatile ("nop");
         }
-        uart_print("Core 1 finished! Exiting...\n");
+        
+        uart_print("Both cores finished! Exiting...\n");
 
         // 4. Hit the kill switch
         *tohost = 1; 
@@ -125,16 +123,16 @@ void main(int hartid) {
     } else {
         // --- CORE 1 (Worker) ---
         
-        // 1. Wait until Core 0 has written the baud rate
+        // 1. Wait until Core 0 has initialized the system
         while (uart_ready == 0) {
             asm volatile("nop");
         }
 
-        // 2. Safely read from the memory-mapped UART peripheral!
-        // We will store it in our global variable so you can see it in GDB
-        counter_core1 = UART_BAUDRATE; 
+        // 2. DO HEAVY MATH
+        for (volatile long i = 0; i < TARGET; i++) {}
 
-        // 3. Signal to Core 0 that we successfully read the bus
+        // 3. Signal to Core 0 that our math is completely done!
+        volatile uint32_t counter_core1 = UART_BAUDRATE; 
         core1_finished = 1;
 
         // Sleep forever
