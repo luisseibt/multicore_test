@@ -102,9 +102,6 @@ void main(int hartid) {
 
         uart_print("Booting Core 0...\n");
         uart_print("Both cores starting heavy math...\n");
-
-        // 1. DO HEAVY MATH
-        for (volatile long i = 0; i < TARGET; i++) {}
         
         // 2. Mark Core 0 as done
         core0_finished = 1;
@@ -124,16 +121,12 @@ void main(int hartid) {
         // --- CORE 1 (Worker) ---
         
         // 1. Wait until Core 0 has initialized the system
-        while (uart_ready == 0) {
-            asm volatile("nop");
-        }
 
         // 2. DO HEAVY MATH
         for (volatile long i = 0; i < TARGET; i++) {}
 
         // 3. Signal to Core 0 that our math is completely done!
         volatile uint32_t counter_core1 = UART_BAUDRATE; 
-        uart_print("2nd uart finished! Exiting...\n");
         core1_finished = 1;
 
         // Sleep forever
