@@ -29,11 +29,11 @@ volatile uint32_t* tohost = (uint32_t*)0x20000000;
 // Synchronization flags
 volatile int uart_ready = 0;
 volatile int core1_finished = 0;
+volatile int core0_finished = 0; 
 
 // Variables to view in debugger
 volatile uint32_t counter_core0 = 0xAAAA0000;
 volatile uint32_t counter_core1 = 0xBBBB0000;
-
 
 static inline void csr_set_mie(uintptr_t mask) {
     asm volatile("csrs mie, %0" :: "r"(mask));
@@ -76,6 +76,7 @@ void uart_init(void) {
     UART_START_RX = 1;
 }
 
+// THIS IS THE FUNCTION THE LINKER WAS LOOKING FOR!
 void trap_dispatch(void) {
     uintptr_t cause;
     asm volatile("csrr %0, mcause" : "=r"(cause));
@@ -84,61 +85,45 @@ void trap_dispatch(void) {
     if (is_interrupt && code == 11) m_irq_handler();
 }
 
-// ... [Keep all your #defines, global variables, and init functions the same] ...
-
-volatile int core0_finished = 0; // Let's add this for clarity
 
 void main(int hartid) {
-    // Let's use 100 Million for the benchmark (1 Billion might take a very long time)
-    long TARGET = 3000; 
+    // 100 Million is perfect. It takes ~1 second at 100 MIPS.
+    long TARGET = 10000000; 
 
     if (hartid == 0) {
         // --- CORE 0 (Master) ---
-        uart_init();
-        plic_init();
-        
-        // Signal Core 1 to wake up
-        uart_ready = 1; 
-
-        uart_print("Booting Core 0...\n");
-        uart_print("Both cores starting heavy math...\n");
-
-        // 1. DO HEAVY MATH
-        for (volatile long i = 0; i < TARGET; i++) {}
-        
-        // 2. Mark Core 0 as done
-        core0_finished = 1;
-
-        // 3. Wait for Core 1 to finish its math
-        while (core1_finished == 0) {
-            asm volatile ("nop");
+        // 1. DO HEAVY MATH ENTIRELY IN CPU REGISTERS
+        for (long i = 0; i < TARGET; i++) {
+            asm volatile(""); // Forces compiler to keep the loop, but does 0 memory access
         }
         
-        uart_print("Both cores finished! Exiting...\n");
+        // // 2. Mark Core 0 as done
+        // core0_finished = 1;
 
+        // // 3. Wait for Core 1 to finish its math
+        // while (core1_finished == 0) {
+        //     asm volatile ("nop");
+        // }
+        
         // 4. Hit the kill switch
-        *tohost = 1; 
-        while(1); 
+        
 
     } else {
         // --- CORE 1 (Worker) ---
+        // 1. DO HEAVY MATH ENTIRELY IN CPU REGISTERS
+        for (long i = 0; i < TARGET; i++) {
+            asm volatile(""); 
+        }
+
+        // volatile uint32_t counter_core1 = UART_BAUDRATE; 
         
-        // 1. Wait until Core 0 has initialized the system
-        while (uart_ready == 0) {
-            asm volatile("nop");
-        }
-
-        // 2. DO HEAVY MATH
-        for (volatile long i = 0; i < TARGET; i++) {}
-
-        // 3. Signal to Core 0 that our math is completely done!
-        volatile uint32_t counter_core1 = UART_BAUDRATE; 
-        uart_print("2nd uart finished! Exiting...\n");
-        core1_finished = 1;
-
-        // Sleep forever
-        while(1) {
-            asm volatile ("wfi");
-        }
+        // 2. Signal Core 0 that we are done
+        // core1_finished = 1;
+        
+        // // 3. Prevent Core 1 from crashing after returning from main()
+        // while(1) {
+        //     asm volatile ("wfi");
+        // }
+        *tohost = 1; 
     }
 }
