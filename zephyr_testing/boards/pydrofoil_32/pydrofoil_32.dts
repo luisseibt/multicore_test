@@ -10,15 +10,15 @@
 		zephyr,shell-uart = &uart_new;
 		zephyr,sram = &ram0;
 	};
-	uart_new: uart@80020000 {
+	uart_new: uart@10009000 {
 		compatible = "pydrofoil,nrf-uart";
-		reg = <0x80020000 0x1000>;
+		reg = <0x10009000 0x1000>;
 	};
 
 };
 
 &ram0 {
-	reg = <0x80002000 0x20000>;
+	reg = <0x80000000 0x10000000>;
 };
 
 /*
