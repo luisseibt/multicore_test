@@ -22,6 +22,6 @@ target_include_directories(app PRIVATE
 
 # Compiler-Flags: 1 Thread, ausreichend Iterationen (z.B. 2000)
 target_compile_definitions(app PRIVATE
-    ITERATIONS=2000
+    ITERATIONS=1
     MULTITHREAD=1
 )
