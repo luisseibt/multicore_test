@@ -26,7 +26,7 @@ void trap_dispatch(void)
 
 void main(int hartid)
 {
-    long TARGET = 10;
+    long TARGET = 1000000;
 
     if (hartid == 0)
     {
@@ -39,7 +39,7 @@ void main(int hartid)
     }
     else
     {
-        for (long i = 0; i < 10*TARGET; i++)
+        for (long i = 0; i < TARGET; i++)
         {
             asm volatile("");
         }
