@@ -16,11 +16,7 @@
  */
 
 #include "dhry.h"
-
-#define SIMDEV_CORE_DONE (*(volatile unsigned int *)(0x10000000))
-#define SIMDEV_SOUT (*(volatile unsigned int *)(0x10000008)) // for multicore simdev 
-// #define SIMDEV_SOUT (*(volatile unsigned int *)(0x10000028)) // for regualr simdev
-
+#include "helpers.h"
 // Deine bekannte Print-Funktion
 void my_print(const char* str) {
     while (*str) {
@@ -116,7 +112,7 @@ float           Microseconds,
 /* end of variables for time measurement */
 
 
-main ()
+dhrystone_main ()
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -336,8 +332,8 @@ main ()
     // my_print ("%d \n", (int)Dhrystones_Per_Second);
     my_print ("\n");
   }
-  my_print("Dhrystone finished! Stopping Core 0...\n");
-  SIMDEV_CORE_DONE = 0; // <--- Signal an deinen SystemC-Simulator
+  my_print("Dhrystone finished!\n");
+  // SIMDEV_CORE_DONE = 0; // <--- Signal an deinen SystemC-Simulator
   
 }
 

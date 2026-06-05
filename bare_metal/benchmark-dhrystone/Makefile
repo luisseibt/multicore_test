@@ -12,7 +12,7 @@ BARE_METAL_CFLAGS = -mcmodel=medany -nostdlib -g
 LDFLAGS = -T link.ld
 
 # 5. ALLE Quelldateien inkl. startup.S angeben!
-SRC = startup.S dhry_1.c dhry_2.c strcmp.S
+SRC = startup.S main.c dhry_1.c dhry_2.c strcmp.S
 HDR = dhry.h
 
 # Alle CFLAGS zusammenbauen
