@@ -391,8 +391,8 @@
 
 /* General definitions: */
 
-#include <stdio.h>
-                /* for strcpy, strcmp */
+// #include <stdio.h>
+//                 /* for strcpy, strcmp */
 
 #define Null 0 
                 /* Value of a Null pointer */

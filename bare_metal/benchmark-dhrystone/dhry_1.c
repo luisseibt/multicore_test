@@ -17,11 +17,51 @@
 
 #include "dhry.h"
 
+#define SIMDEV_CORE_DONE (*(volatile unsigned int *)(0x10000000))
+#define SIMDEV_SOUT (*(volatile unsigned int *)(0x10000008)) // for multicore simdev 
+// #define SIMDEV_SOUT (*(volatile unsigned int *)(0x10000028)) // for regualr simdev
+
+// Deine bekannte Print-Funktion
+void my_print(const char* str) {
+    while (*str) {
+        SIMDEV_SOUT = *str++;
+    }
+}
+
+
 #ifndef DHRY_ITERS
-#define DHRY_ITERS 2000
+#define DHRY_ITERS 20000
 #endif
 
 /* Global Variables: */
+
+char *strcpy(char *dest, const char *src) {
+    char *d = dest;
+    while ((*d++ = *src++));
+    return dest;
+}
+
+// 2. Bare-Metal malloc (Reserviert Speicher)
+// Da Dhrystone nur exakt zwei winzige Datenstrukturen braucht, 
+// reicht uns ein kleiner, statischer Array-Speicher völlig aus!
+void *malloc(unsigned long size) {
+    static char heap[1024]; // 1 Kilobyte Pseudo-Arbeitsspeicher
+    static unsigned long heap_index = 0;
+    
+    void *ptr = &heap[heap_index];
+    heap_index += size;
+    return ptr;
+}
+
+// 3. Bare-Metal memcpy (Kopiert Speicherblöcke für Struct-Zuweisungen)
+void *memcpy(void *dest, const void *src, unsigned long n) {
+    char *d = (char *)dest;
+    const char *s = (const char *)src;
+    while (n--) {
+        *d++ = *s++;
+    }
+    return dest;
+}
 
 Rec_Pointer     Ptr_Glob,
                 Next_Ptr_Glob;
@@ -32,10 +72,12 @@ char            Ch_1_Glob,
 int             Arr_1_Glob [50];
 int             Arr_2_Glob [50] [50];
 
-extern char     *malloc ();
+// extern char     *malloc ();
 Enumeration     Func_1 ();
   /* forward declaration necessary since Enumeration may not simply be int */
-
+long time(long *t) {
+    return 0; 
+}
 #ifndef REG
         Boolean Reg = false;
 #define REG
@@ -109,32 +151,33 @@ main ()
         /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
         /* overflow may occur for this array element.                   */
 
-  printf ("\n");
-  printf ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
-  printf ("\n");
+  my_print ("\n");
+  my_print ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
+  my_print ("\n");
   if (Reg)
   {
-    printf ("Program compiled with 'register' attribute\n");
-    printf ("\n");
+    my_print ("Program compiled with 'register' attribute\n");
+    my_print ("\n");
   }
   else
   {
-    printf ("Program compiled without 'register' attribute\n");
-    printf ("\n");
+    my_print ("Program compiled without 'register' attribute\n");
+    my_print ("\n");
   }
 #ifdef DHRY_ITERS
   Number_Of_Runs = DHRY_ITERS;
 #else
-  printf ("Please give the number of runs through the benchmark: ");
+  my_print ("Please give the number of runs through the benchmark: ");
   {
     int n;
     scanf ("%d", &n);
     Number_Of_Runs = n;
   }
-  printf ("\n");
+  my_print ("\n");
 #endif
 
-  printf ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
+  // my_print ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
+  my_print("Execution starts");
 
   /***************/
   /* Start timer */
@@ -212,66 +255,66 @@ main ()
   End_Time = clock();
 #endif
 
-  printf ("Execution ends\n");
-  printf ("\n");
-  printf ("Final values of the variables used in the benchmark:\n");
-  printf ("\n");
-  printf ("Int_Glob:            %d\n", Int_Glob);
-  printf ("        should be:   %d\n", 5);
-  printf ("Bool_Glob:           %d\n", Bool_Glob);
-  printf ("        should be:   %d\n", 1);
-  printf ("Ch_1_Glob:           %c\n", Ch_1_Glob);
-  printf ("        should be:   %c\n", 'A');
-  printf ("Ch_2_Glob:           %c\n", Ch_2_Glob);
-  printf ("        should be:   %c\n", 'B');
-  printf ("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);
-  printf ("        should be:   %d\n", 7);
-  printf ("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);
-  printf ("        should be:   Number_Of_Runs + 10\n");
-  printf ("Ptr_Glob->\n");
-  printf ("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);
-  printf ("        should be:   (implementation-dependent)\n");
-  printf ("  Discr:             %d\n", Ptr_Glob->Discr);
-  printf ("        should be:   %d\n", 0);
-  printf ("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);
-  printf ("        should be:   %d\n", 2);
-  printf ("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);
-  printf ("        should be:   %d\n", 17);
-  printf ("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);
-  printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  printf ("Next_Ptr_Glob->\n");
-  printf ("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);
-  printf ("        should be:   (implementation-dependent), same as above\n");
-  printf ("  Discr:             %d\n", Next_Ptr_Glob->Discr);
-  printf ("        should be:   %d\n", 0);
-  printf ("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);
-  printf ("        should be:   %d\n", 1);
-  printf ("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);
-  printf ("        should be:   %d\n", 18);
-  printf ("  Str_Comp:          %s\n",
-                                Next_Ptr_Glob->variant.var_1.Str_Comp);
-  printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  printf ("Int_1_Loc:           %d\n", Int_1_Loc);
-  printf ("        should be:   %d\n", 5);
-  printf ("Int_2_Loc:           %d\n", Int_2_Loc);
-  printf ("        should be:   %d\n", 13);
-  printf ("Int_3_Loc:           %d\n", Int_3_Loc);
-  printf ("        should be:   %d\n", 7);
-  printf ("Enum_Loc:            %d\n", Enum_Loc);
-  printf ("        should be:   %d\n", 1);
-  printf ("Str_1_Loc:           %s\n", Str_1_Loc);
-  printf ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
-  printf ("Str_2_Loc:           %s\n", Str_2_Loc);
-  printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
-  printf ("\n");
+  my_print ("Execution ends\n");
+  my_print ("\n");
+  my_print ("Final values of the variables used in the benchmark:\n");
+  // my_print ("\n");
+  // my_print ("Int_Glob:            %d\n", Int_Glob);
+  // my_print ("        should be:   %d\n", 5);
+  // my_print ("Bool_Glob:           %d\n", Bool_Glob);
+  // my_print ("        should be:   %d\n", 1);
+  // my_print ("Ch_1_Glob:           %c\n", Ch_1_Glob);
+  // my_print ("        should be:   %c\n", 'A');
+  // my_print ("Ch_2_Glob:           %c\n", Ch_2_Glob);
+  // my_print ("        should be:   %c\n", 'B');
+  // my_print ("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);
+  // my_print ("        should be:   %d\n", 7);
+  // my_print ("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);
+  // my_print ("        should be:   Number_Of_Runs + 10\n");
+  // my_print ("Ptr_Glob->\n");
+  // my_print ("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);
+  // my_print ("        should be:   (implementation-dependent)\n");
+  // my_print ("  Discr:             %d\n", Ptr_Glob->Discr);
+  // my_print ("        should be:   %d\n", 0);
+  // my_print ("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);
+  // my_print ("        should be:   %d\n", 2);
+  // my_print ("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);
+  // my_print ("        should be:   %d\n", 17);
+  // my_print ("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);
+  // my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+  // my_print ("Next_Ptr_Glob->\n");
+  // my_print ("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);
+  // my_print ("        should be:   (implementation-dependent), same as above\n");
+  // my_print ("  Discr:             %d\n", Next_Ptr_Glob->Discr);
+  // my_print ("        should be:   %d\n", 0);
+  // my_print ("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);
+  // my_print ("        should be:   %d\n", 1);
+  // my_print ("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);
+  // my_print ("        should be:   %d\n", 18);
+  // my_print ("  Str_Comp:          %s\n",
+  //                               Next_Ptr_Glob->variant.var_1.Str_Comp);
+  // my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+  // my_print ("Int_1_Loc:           %d\n", Int_1_Loc);
+  // my_print ("        should be:   %d\n", 5);
+  // my_print ("Int_2_Loc:           %d\n", Int_2_Loc);
+  // my_print ("        should be:   %d\n", 13);
+  // my_print ("Int_3_Loc:           %d\n", Int_3_Loc);
+  // my_print ("        should be:   %d\n", 7);
+  // my_print ("Enum_Loc:            %d\n", Enum_Loc);
+  // my_print ("        should be:   %d\n", 1);
+  // my_print ("Str_1_Loc:           %s\n", Str_1_Loc);
+  // my_print ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
+  // my_print ("Str_2_Loc:           %s\n", Str_2_Loc);
+  // my_print ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
+  my_print ("\n");
 
   User_Time = End_Time - Begin_Time;
 
   if (User_Time < Too_Small_Time)
   {
-    printf ("Measured time too small to obtain meaningful results\n");
-    printf ("Please increase number of runs\n");
-    printf ("\n");
+    my_print ("Measured time too small to obtain meaningful results\n");
+    my_print ("Please increase number of runs\n");
+    my_print ("\n");
   }
   else
   {
@@ -285,14 +328,16 @@ main ()
     Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
                         / (float) User_Time;
 #endif
-    printf ("Microseconds for one run through Dhrystone: ");
-    //printf ("%6.1f \n", Microseconds);
-    printf ("%d \n", (int)Microseconds);
-    printf ("Dhrystones per Second:                      ");
-    //printf ("%6.1f \n", Dhrystones_Per_Second);
-    printf ("%d \n", (int)Dhrystones_Per_Second);
-    printf ("\n");
+    my_print ("Microseconds for one run through Dhrystone: ");
+    //my_print ("%6.1f \n", Microseconds);
+    // my_print ("%d \n", (int)Microseconds);
+    my_print ("Dhrystones per Second:                      ");
+    //my_print ("%6.1f \n", Dhrystones_Per_Second);
+    // my_print ("%d \n", (int)Dhrystones_Per_Second);
+    my_print ("\n");
   }
+  my_print("Dhrystone finished! Stopping Core 0...\n");
+  SIMDEV_CORE_DONE = 0; // <--- Signal an deinen SystemC-Simulator
   
 }
 
