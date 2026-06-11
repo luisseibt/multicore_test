@@ -1,20 +1,19 @@
 .section .text.init
 .global _start
 
+# NEU: Dem Assembler sagen, dass diese Variablen vom Linker kommen!
+.extern _sp
+.extern _bss_start
+.extern _bss_end
+
 _start:
-    # 1. Hardware-Thread-ID (hartid) lesen
+    # 1. Hardware-Thread-ID lesen
     csrr a0, mhartid
 
-    # NEU: Wenn hartid NICHT 0 ist, schick den Kern sofort in die Endlosschleife!
-    # bnez a0, infinite_loop 
-
-    # 2. Stack-Pointer initialisieren (wird nur noch von Kern 0 ausgeführt!)
+    # 2. Stack-Pointer initialisieren
     la sp, _sp
-    li t1, 0x1000           # 4KB stack per core
-    mul t1, t1, a0          # Offset = id * 4KB
-    sub sp, sp, t1          # Final SP = Top - Offset
 
-    # 3. .bss Sektion mit Nullen füllen
+    # 3. SEINE EIGENE .bss Sektion mit Nullen füllen
     la t0, _bss_start
     la t1, _bss_end
     bgeu t0, t1, end_bss
@@ -27,7 +26,7 @@ end_bss:
     # 4. In unsere C-Funktion springen
     call main
 
-    # 5. Fallback und Parkplatz für ungenutzte Kerne
+    # 5. Fallback
 infinite_loop:
-    wfi                  # Wait For Interrupt (schickt die CPU schlafen)
+    wfi
     j infinite_loop

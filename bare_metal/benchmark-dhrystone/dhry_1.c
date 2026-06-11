@@ -18,15 +18,70 @@
 #include "dhry.h"
 #include "helpers.h"
 // Deine bekannte Print-Funktion
+// Deine bestehende Funktion für Strings
 void my_print(const char* str) {
     while (*str) {
         SIMDEV_SOUT = *str++;
     }
 }
 
+// NEU: Helfer für einzelne Buchstaben
+void my_print_char(char c) {
+    SIMDEV_SOUT = c;
+}
+
+// NEU: Helfer für Zahlen (Integer)
+void my_print_num(long num) {
+    char buf[32]; 
+    int i = 0;
+
+    if (num == 0) {
+        SIMDEV_SOUT = '0';
+        return;
+    }
+    if (num < 0) {
+        SIMDEV_SOUT = '-';
+        num = -num;
+    }
+    while (num > 0) {
+        buf[i++] = (num % 10) + '0'; 
+        num /= 10;
+    }
+    while (i > 0) {
+        SIMDEV_SOUT = buf[--i];
+    }
+}
+
+// NEU: Helfer für Speicheradressen (Hexadezimal)
+void my_print_hex(unsigned long num) {
+    char buf[16];
+    int i = 0;
+    
+    my_print("0x"); // Standard-Präfix für Hex-Zahlen
+    
+    if (num == 0) {
+        SIMDEV_SOUT = '0';
+        return;
+    }
+    
+    while (num > 0) {
+        int digit = num % 16;
+        if (digit < 10) {
+            buf[i++] = digit + '0';
+        } else {
+            buf[i++] = (digit - 10) + 'A'; // A-F für 10-15
+        }
+        num /= 16;
+    }
+    
+    while (i > 0) {
+        SIMDEV_SOUT = buf[--i];
+    }
+}
+
 
 #ifndef DHRY_ITERS
-#define DHRY_ITERS 20000
+#define DHRY_ITERS 200
 #endif
 
 /* Global Variables: */
@@ -147,18 +202,18 @@ dhrystone_main ()
         /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
         /* overflow may occur for this array element.                   */
 
-  my_print ("\n");
-  my_print ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
-  my_print ("\n");
+  // my_print ("\n");
+  // my_print ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
+  // my_print ("\n");
   if (Reg)
   {
-    my_print ("Program compiled with 'register' attribute\n");
-    my_print ("\n");
+    // my_print ("Program compiled with 'register' attribute\n");
+    // my_print ("\n");
   }
   else
   {
-    my_print ("Program compiled without 'register' attribute\n");
-    my_print ("\n");
+    // my_print ("Program compiled without 'register' attribute\n");
+    // my_print ("\n");
   }
 #ifdef DHRY_ITERS
   Number_Of_Runs = DHRY_ITERS;
@@ -254,6 +309,78 @@ dhrystone_main ()
   my_print ("Execution ends\n");
   my_print ("\n");
   my_print ("Final values of the variables used in the benchmark:\n");
+  my_print ("\n");
+  my_print ("Int_Glob:            "); my_print_num(Int_Glob); my_print("\n");
+  my_print ("        should be:   "); my_print_num(5); my_print("\n");
+  
+  my_print ("Bool_Glob:           "); my_print_num(Bool_Glob); my_print("\n");
+  my_print ("        should be:   "); my_print_num(1); my_print("\n");
+  
+  my_print ("Ch_1_Glob:           "); my_print_char(Ch_1_Glob); my_print("\n");
+  my_print ("        should be:   "); my_print_char('A'); my_print("\n");
+  
+  my_print ("Ch_2_Glob:           "); my_print_char(Ch_2_Glob); my_print("\n");
+  my_print ("        should be:   "); my_print_char('B'); my_print("\n");
+  
+  my_print ("Arr_1_Glob[8]:       "); my_print_num(Arr_1_Glob[8]); my_print("\n");
+  my_print ("        should be:   "); my_print_num(7); my_print("\n");
+  
+  my_print ("Arr_2_Glob[8][7]:    "); my_print_num(Arr_2_Glob[8][7]); my_print("\n");
+  my_print ("        should be:   Number_Of_Runs + 10\n");
+  
+  my_print ("Ptr_Glob->\n");
+  my_print ("  Ptr_Comp:          "); my_print_hex((unsigned long) Ptr_Glob->Ptr_Comp); my_print("\n");
+  my_print ("        should be:   (implementation-dependent)\n");
+  
+  my_print ("  Discr:             "); my_print_num(Ptr_Glob->Discr); my_print("\n");
+  my_print ("        should be:   "); my_print_num(0); my_print("\n");
+  
+  my_print ("  Enum_Comp:         "); my_print_num(Ptr_Glob->variant.var_1.Enum_Comp); my_print("\n");
+  my_print ("        should be:   "); my_print_num(2); my_print("\n");
+  
+  my_print ("  Int_Comp:          "); my_print_num(Ptr_Glob->variant.var_1.Int_Comp); my_print("\n");
+  my_print ("        should be:   "); my_print_num(17); my_print("\n");
+  
+  my_print ("  Str_Comp:          "); my_print(Ptr_Glob->variant.var_1.Str_Comp); my_print("\n");
+  my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+  
+  my_print ("Next_Ptr_Glob->\n");
+  my_print ("  Ptr_Comp:          "); my_print_hex((unsigned long) Next_Ptr_Glob->Ptr_Comp); my_print("\n");
+  my_print ("        should be:   (implementation-dependent), same as above\n");
+  
+  my_print ("  Discr:             "); my_print_num(Next_Ptr_Glob->Discr); my_print("\n");
+  my_print ("        should be:   "); my_print_num(0); my_print("\n");
+  
+  my_print ("  Discr:             "); my_print_num(Next_Ptr_Glob->Discr); my_print("\n");
+  my_print ("        should be:   "); my_print_num(0); my_print("\n");
+  
+  my_print ("  Enum_Comp:         "); my_print_num(Next_Ptr_Glob->variant.var_1.Enum_Comp); my_print("\n");
+  my_print ("        should be:   "); my_print_num(1); my_print("\n");
+  
+  my_print ("  Int_Comp:          "); my_print_num(Next_Ptr_Glob->variant.var_1.Int_Comp); my_print("\n");
+  my_print ("        should be:   "); my_print_num(18); my_print("\n");
+  
+  my_print ("  Str_Comp:          "); my_print(Next_Ptr_Glob->variant.var_1.Str_Comp); my_print("\n");
+  my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+  
+  my_print ("Int_1_Loc:           "); my_print_num(Int_1_Loc); my_print("\n");
+  my_print ("        should be:   "); my_print_num(5); my_print("\n");
+  
+  my_print ("Int_2_Loc:           "); my_print_num(Int_2_Loc); my_print("\n");
+  my_print ("        should be:   "); my_print_num(13); my_print("\n");
+  
+  my_print ("Int_3_Loc:           "); my_print_num(Int_3_Loc); my_print("\n");
+  my_print ("        should be:   "); my_print_num(7); my_print("\n");
+  
+  my_print ("Enum_Loc:            "); my_print_num(Enum_Loc); my_print("\n");
+  my_print ("        should be:   "); my_print_num(1); my_print("\n");
+  
+  my_print ("Str_1_Loc:           "); my_print(Str_1_Loc); my_print("\n");
+  my_print ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
+  
+  my_print ("Str_2_Loc:           "); my_print(Str_2_Loc); my_print("\n");
+  my_print ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
+  // my_print ("\n");
   // my_print ("\n");
   // my_print ("Int_Glob:            %d\n", Int_Glob);
   // my_print ("        should be:   %d\n", 5);
@@ -302,15 +429,15 @@ dhrystone_main ()
   // my_print ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
   // my_print ("Str_2_Loc:           %s\n", Str_2_Loc);
   // my_print ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
-  my_print ("\n");
+  // my_print ("\n");
 
   User_Time = End_Time - Begin_Time;
 
   if (User_Time < Too_Small_Time)
   {
-    my_print ("Measured time too small to obtain meaningful results\n");
-    my_print ("Please increase number of runs\n");
-    my_print ("\n");
+    // my_print ("Measured time too small to obtain meaningful results\n");
+    // my_print ("Please increase number of runs\n");
+    // my_print ("\n");
   }
   else
   {

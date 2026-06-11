@@ -8,20 +8,26 @@ DHRY-CFLAGS += -fno-builtin-printf -fno-common -falign-functions=4
 # 3. Unsere speziellen Bare-Metal-Flags hinzufügen
 BARE_METAL_CFLAGS = -mcmodel=medany -nostdlib -g
 
-# 4. Das Linker-Skript definieren
-LDFLAGS = -T link.ld
-
-# 5. ALLE Quelldateien inkl. startup.S angeben!
-SRC = startup.S main.c dhry_1.c dhry_2.c strcmp.S
-HDR = dhry.h
-
 # Alle CFLAGS zusammenbauen
 override CFLAGS += $(DHRY-CFLAGS) $(BARE_METAL_CFLAGS)
 
-# Das Ziel (Target) - Wir nennen es singlecore.elf, damit es zu deinem Simulator passt
-singlecore.elf: $(SRC) $(HDR)
-	$(CC) $(CFLAGS) $(SRC) $(LDFLAGS) -o $@
+# 4. ALLE Quelldateien inkl. startup.S angeben!
+SRC = startup.S main.c dhry_1.c dhry_2.c strcmp.S
+HDR = dhry.h
 
-# Ein "clean" Befehl zum Aufräumen
+# ---------------------------------------------------------
+# NEU: Das Standard-Target baut jetzt BEIDE Executables
+# ---------------------------------------------------------
+all: dhrystone_core0.elf dhrystone_core1.elf
+
+# 5. Kompiliere Binary für Kern 0 (Nutzt linker_core0.ld)
+dhrystone_core0.elf: $(SRC) $(HDR)
+	$(CC) $(CFLAGS) $(SRC) -T linker_core0.ld -o $@
+
+# 6. Kompiliere Binary für Kern 1 (Nutzt linker_core1.ld)
+dhrystone_core1.elf: $(SRC) $(HDR)
+	$(CC) $(CFLAGS) $(SRC) -T linker_core1.ld -o $@
+
+# 7. Ein "clean" Befehl zum Aufräumen beider Dateien
 clean:
-	rm -f *.i *.s *.o singlecore.elf
+	rm -f *.i *.s *.o dhrystone_core0.elf dhrystone_core1.elf
