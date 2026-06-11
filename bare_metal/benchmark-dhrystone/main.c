@@ -6,26 +6,26 @@
 // 1. Der Dummy-Timer für Dhrystone
 
 // 2. Deklariere die umbenannte Dhrystone-Funktion
-extern int dhrystone_main(); 
+extern int dhrystone_main(unsigned long hartid); 
 
 void main(int hartid) {
     if (hartid == 0) {
         // --- CORE 0 ---
-        my_print("Core 0 startet Dhrystone...\n");
+        my_print(hartid, "Core 0 startet Dhrystone...\n");
         
-        dhrystone_main(); // Führe den Benchmark aus!
+        dhrystone_main(hartid); // Führe den Benchmark aus!
         
-        my_print("Core 0 ist fertig!\n");
+        my_print(hartid, "Core 0 ist fertig!\n");
         SIMDEV_CORE_DONE = hartid; 
     }
     else {
         // --- CORE 1 ---
         // (Ggf. UART und PLIC Initialisierung hier)
-        my_print("Core 1 startet Dhrystone...\n");
+        my_print(hartid, "Core 1 startet Dhrystone...\n");
         
-        dhrystone_main(); // Führe den Benchmark parallel aus!
+        dhrystone_main(hartid); // Führe den Benchmark parallel aus!
         
-        my_print("Core 1 ist fertig!\n");
+        my_print(hartid, "Core 1 ist fertig!\n");
         SIMDEV_CORE_DONE = hartid; 
     }
 }

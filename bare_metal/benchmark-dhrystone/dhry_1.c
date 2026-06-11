@@ -19,28 +19,32 @@
 #include "helpers.h"
 // Deine bekannte Print-Funktion
 // Deine bestehende Funktion für Strings
-void my_print(const char* str) {
-    while (*str) {
-        SIMDEV_SOUT = *str++;
+void my_print_char(unsigned long hartid, char c) {
+    if (hartid == 0) {
+        SIMDEV_SOUT_CORE0 = c;
+    } else {
+        SIMDEV_SOUT_CORE1 = c;
     }
 }
 
-// NEU: Helfer für einzelne Buchstaben
-void my_print_char(char c) {
-    SIMDEV_SOUT = c;
+// Deine bestehende Funktion für Strings
+void my_print(unsigned long hartid, const char* str) {
+    while (*str) {
+        my_print_char(hartid, *str++);
+    }
 }
 
-// NEU: Helfer für Zahlen (Integer)
-void my_print_num(long num) {
+// Helfer für Zahlen (Integer)
+void my_print_num(unsigned long hartid, long num) {
     char buf[32]; 
     int i = 0;
 
     if (num == 0) {
-        SIMDEV_SOUT = '0';
+        my_print_char(hartid, '0');
         return;
     }
     if (num < 0) {
-        SIMDEV_SOUT = '-';
+        my_print_char(hartid, '-');
         num = -num;
     }
     while (num > 0) {
@@ -48,19 +52,19 @@ void my_print_num(long num) {
         num /= 10;
     }
     while (i > 0) {
-        SIMDEV_SOUT = buf[--i];
+        my_print_char(hartid, buf[--i]);
     }
 }
 
-// NEU: Helfer für Speicheradressen (Hexadezimal)
-void my_print_hex(unsigned long num) {
+// Helfer für Speicheradressen (Hexadezimal)
+void my_print_hex(unsigned long hartid, unsigned long num) {
     char buf[16];
     int i = 0;
     
-    my_print("0x"); // Standard-Präfix für Hex-Zahlen
+    my_print(hartid, "0x"); 
     
     if (num == 0) {
-        SIMDEV_SOUT = '0';
+        my_print_char(hartid, '0');
         return;
     }
     
@@ -69,19 +73,19 @@ void my_print_hex(unsigned long num) {
         if (digit < 10) {
             buf[i++] = digit + '0';
         } else {
-            buf[i++] = (digit - 10) + 'A'; // A-F für 10-15
+            buf[i++] = (digit - 10) + 'A'; 
         }
         num /= 16;
     }
     
     while (i > 0) {
-        SIMDEV_SOUT = buf[--i];
+        my_print_char(hartid, buf[--i]);
     }
 }
 
 
 #ifndef DHRY_ITERS
-#define DHRY_ITERS 200
+#define DHRY_ITERS 20000
 #endif
 
 /* Global Variables: */
@@ -167,7 +171,7 @@ float           Microseconds,
 /* end of variables for time measurement */
 
 
-dhrystone_main ()
+dhrystone_main (unsigned long hartid)
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -202,33 +206,33 @@ dhrystone_main ()
         /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
         /* overflow may occur for this array element.                   */
 
-  // my_print ("\n");
-  // my_print ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
-  // my_print ("\n");
+  // my_print("\n");
+  // my_print("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
+  // my_print("\n");
   if (Reg)
   {
-    // my_print ("Program compiled with 'register' attribute\n");
-    // my_print ("\n");
+    // my_print("Program compiled with 'register' attribute\n");
+    // my_print("\n");
   }
   else
   {
-    // my_print ("Program compiled without 'register' attribute\n");
-    // my_print ("\n");
+    // my_print("Program compiled without 'register' attribute\n");
+    // my_print("\n");
   }
 #ifdef DHRY_ITERS
   Number_Of_Runs = DHRY_ITERS;
 #else
-  my_print ("Please give the number of runs through the benchmark: ");
+  my_print("Please give the number of runs through the benchmark: ");
   {
     int n;
     scanf ("%d", &n);
     Number_Of_Runs = n;
   }
-  my_print ("\n");
+  my_print("\n");
 #endif
 
-  // my_print ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
-  my_print("Execution starts");
+  // my_print("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
+  my_print(hartid, "Execution starts");
 
   /***************/
   /* Start timer */
@@ -306,138 +310,88 @@ dhrystone_main ()
   End_Time = clock();
 #endif
 
-  my_print ("Execution ends\n");
-  my_print ("\n");
-  my_print ("Final values of the variables used in the benchmark:\n");
-  my_print ("\n");
-  my_print ("Int_Glob:            "); my_print_num(Int_Glob); my_print("\n");
-  my_print ("        should be:   "); my_print_num(5); my_print("\n");
+   my_print(hartid, "Execution ends\n");
+  my_print(hartid, "\n");
+  my_print(hartid, "Final values of the variables used in the benchmark:\n");
+  my_print(hartid, "\n");
+  my_print(hartid, "Int_Glob:            "); my_print_num(hartid, Int_Glob); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 5); my_print(hartid, "\n");
   
-  my_print ("Bool_Glob:           "); my_print_num(Bool_Glob); my_print("\n");
-  my_print ("        should be:   "); my_print_num(1); my_print("\n");
+  my_print(hartid, "Bool_Glob:           "); my_print_num(hartid, Bool_Glob); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 1); my_print(hartid, "\n");
   
-  my_print ("Ch_1_Glob:           "); my_print_char(Ch_1_Glob); my_print("\n");
-  my_print ("        should be:   "); my_print_char('A'); my_print("\n");
+  my_print(hartid, "Ch_1_Glob:           "); my_print_char(hartid, Ch_1_Glob); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_char(hartid, 'A'); my_print(hartid, "\n");
   
-  my_print ("Ch_2_Glob:           "); my_print_char(Ch_2_Glob); my_print("\n");
-  my_print ("        should be:   "); my_print_char('B'); my_print("\n");
+  my_print(hartid, "Ch_2_Glob:           "); my_print_char(hartid, Ch_2_Glob); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_char(hartid, 'B'); my_print(hartid, "\n");
   
-  my_print ("Arr_1_Glob[8]:       "); my_print_num(Arr_1_Glob[8]); my_print("\n");
-  my_print ("        should be:   "); my_print_num(7); my_print("\n");
+  my_print(hartid, "Arr_1_Glob[8]:       "); my_print_num(hartid, Arr_1_Glob[8]); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 7); my_print(hartid, "\n");
   
-  my_print ("Arr_2_Glob[8][7]:    "); my_print_num(Arr_2_Glob[8][7]); my_print("\n");
-  my_print ("        should be:   Number_Of_Runs + 10\n");
+  my_print(hartid, "Arr_2_Glob[8][7]:    "); my_print_num(hartid, Arr_2_Glob[8][7]); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   Number_Of_Runs + 10\n");
   
-  my_print ("Ptr_Glob->\n");
-  my_print ("  Ptr_Comp:          "); my_print_hex((unsigned long) Ptr_Glob->Ptr_Comp); my_print("\n");
-  my_print ("        should be:   (implementation-dependent)\n");
+  my_print(hartid, "Ptr_Glob->\n");
+  my_print(hartid, "  Ptr_Comp:          "); my_print_hex(hartid, (unsigned long) Ptr_Glob->Ptr_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   (implementation-dependent)\n");
   
-  my_print ("  Discr:             "); my_print_num(Ptr_Glob->Discr); my_print("\n");
-  my_print ("        should be:   "); my_print_num(0); my_print("\n");
+  my_print(hartid, "  Discr:             "); my_print_num(hartid, Ptr_Glob->Discr); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 0); my_print(hartid, "\n");
   
-  my_print ("  Enum_Comp:         "); my_print_num(Ptr_Glob->variant.var_1.Enum_Comp); my_print("\n");
-  my_print ("        should be:   "); my_print_num(2); my_print("\n");
+  my_print(hartid, "  Enum_Comp:         "); my_print_num(hartid, Ptr_Glob->variant.var_1.Enum_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 2); my_print(hartid, "\n");
   
-  my_print ("  Int_Comp:          "); my_print_num(Ptr_Glob->variant.var_1.Int_Comp); my_print("\n");
-  my_print ("        should be:   "); my_print_num(17); my_print("\n");
+  my_print(hartid, "  Int_Comp:          "); my_print_num(hartid, Ptr_Glob->variant.var_1.Int_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 17); my_print(hartid, "\n");
   
-  my_print ("  Str_Comp:          "); my_print(Ptr_Glob->variant.var_1.Str_Comp); my_print("\n");
-  my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+  my_print(hartid, "  Str_Comp:          "); my_print(hartid, Ptr_Glob->variant.var_1.Str_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
   
-  my_print ("Next_Ptr_Glob->\n");
-  my_print ("  Ptr_Comp:          "); my_print_hex((unsigned long) Next_Ptr_Glob->Ptr_Comp); my_print("\n");
-  my_print ("        should be:   (implementation-dependent), same as above\n");
+  my_print(hartid, "Next_Ptr_Glob->\n");
+  my_print(hartid, "  Ptr_Comp:          "); my_print_hex(hartid, (unsigned long) Next_Ptr_Glob->Ptr_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   (implementation-dependent), same as above\n");
   
-  my_print ("  Discr:             "); my_print_num(Next_Ptr_Glob->Discr); my_print("\n");
-  my_print ("        should be:   "); my_print_num(0); my_print("\n");
+  my_print(hartid, "  Discr:             "); my_print_num(hartid, Next_Ptr_Glob->Discr); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 0); my_print(hartid, "\n");
   
-  my_print ("  Discr:             "); my_print_num(Next_Ptr_Glob->Discr); my_print("\n");
-  my_print ("        should be:   "); my_print_num(0); my_print("\n");
+  my_print(hartid, "  Discr:             "); my_print_num(hartid, Next_Ptr_Glob->Discr); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 0); my_print(hartid, "\n");
   
-  my_print ("  Enum_Comp:         "); my_print_num(Next_Ptr_Glob->variant.var_1.Enum_Comp); my_print("\n");
-  my_print ("        should be:   "); my_print_num(1); my_print("\n");
+  my_print(hartid, "  Enum_Comp:         "); my_print_num(hartid, Next_Ptr_Glob->variant.var_1.Enum_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 1); my_print(hartid, "\n");
   
-  my_print ("  Int_Comp:          "); my_print_num(Next_Ptr_Glob->variant.var_1.Int_Comp); my_print("\n");
-  my_print ("        should be:   "); my_print_num(18); my_print("\n");
+  my_print(hartid, "  Int_Comp:          "); my_print_num(hartid, Next_Ptr_Glob->variant.var_1.Int_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 18); my_print(hartid, "\n");
   
-  my_print ("  Str_Comp:          "); my_print(Next_Ptr_Glob->variant.var_1.Str_Comp); my_print("\n");
-  my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+  my_print(hartid, "  Str_Comp:          "); my_print(hartid, Next_Ptr_Glob->variant.var_1.Str_Comp); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
   
-  my_print ("Int_1_Loc:           "); my_print_num(Int_1_Loc); my_print("\n");
-  my_print ("        should be:   "); my_print_num(5); my_print("\n");
+  my_print(hartid, "Int_1_Loc:           "); my_print_num(hartid, Int_1_Loc); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 5); my_print(hartid, "\n");
   
-  my_print ("Int_2_Loc:           "); my_print_num(Int_2_Loc); my_print("\n");
-  my_print ("        should be:   "); my_print_num(13); my_print("\n");
+  my_print(hartid, "Int_2_Loc:           "); my_print_num(hartid, Int_2_Loc); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 13); my_print(hartid, "\n");
   
-  my_print ("Int_3_Loc:           "); my_print_num(Int_3_Loc); my_print("\n");
-  my_print ("        should be:   "); my_print_num(7); my_print("\n");
+  my_print(hartid, "Int_3_Loc:           "); my_print_num(hartid, Int_3_Loc); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 7); my_print(hartid, "\n");
   
-  my_print ("Enum_Loc:            "); my_print_num(Enum_Loc); my_print("\n");
-  my_print ("        should be:   "); my_print_num(1); my_print("\n");
+  my_print(hartid, "Enum_Loc:            "); my_print_num(hartid, Enum_Loc); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   "); my_print_num(hartid, 1); my_print(hartid, "\n");
   
-  my_print ("Str_1_Loc:           "); my_print(Str_1_Loc); my_print("\n");
-  my_print ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
+  my_print(hartid, "Str_1_Loc:           "); my_print(hartid, Str_1_Loc); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
   
-  my_print ("Str_2_Loc:           "); my_print(Str_2_Loc); my_print("\n");
-  my_print ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
-  // my_print ("\n");
-  // my_print ("\n");
-  // my_print ("Int_Glob:            %d\n", Int_Glob);
-  // my_print ("        should be:   %d\n", 5);
-  // my_print ("Bool_Glob:           %d\n", Bool_Glob);
-  // my_print ("        should be:   %d\n", 1);
-  // my_print ("Ch_1_Glob:           %c\n", Ch_1_Glob);
-  // my_print ("        should be:   %c\n", 'A');
-  // my_print ("Ch_2_Glob:           %c\n", Ch_2_Glob);
-  // my_print ("        should be:   %c\n", 'B');
-  // my_print ("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);
-  // my_print ("        should be:   %d\n", 7);
-  // my_print ("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);
-  // my_print ("        should be:   Number_Of_Runs + 10\n");
-  // my_print ("Ptr_Glob->\n");
-  // my_print ("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);
-  // my_print ("        should be:   (implementation-dependent)\n");
-  // my_print ("  Discr:             %d\n", Ptr_Glob->Discr);
-  // my_print ("        should be:   %d\n", 0);
-  // my_print ("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);
-  // my_print ("        should be:   %d\n", 2);
-  // my_print ("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);
-  // my_print ("        should be:   %d\n", 17);
-  // my_print ("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);
-  // my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  // my_print ("Next_Ptr_Glob->\n");
-  // my_print ("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);
-  // my_print ("        should be:   (implementation-dependent), same as above\n");
-  // my_print ("  Discr:             %d\n", Next_Ptr_Glob->Discr);
-  // my_print ("        should be:   %d\n", 0);
-  // my_print ("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);
-  // my_print ("        should be:   %d\n", 1);
-  // my_print ("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);
-  // my_print ("        should be:   %d\n", 18);
-  // my_print ("  Str_Comp:          %s\n",
-  //                               Next_Ptr_Glob->variant.var_1.Str_Comp);
-  // my_print ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  // my_print ("Int_1_Loc:           %d\n", Int_1_Loc);
-  // my_print ("        should be:   %d\n", 5);
-  // my_print ("Int_2_Loc:           %d\n", Int_2_Loc);
-  // my_print ("        should be:   %d\n", 13);
-  // my_print ("Int_3_Loc:           %d\n", Int_3_Loc);
-  // my_print ("        should be:   %d\n", 7);
-  // my_print ("Enum_Loc:            %d\n", Enum_Loc);
-  // my_print ("        should be:   %d\n", 1);
-  // my_print ("Str_1_Loc:           %s\n", Str_1_Loc);
-  // my_print ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
-  // my_print ("Str_2_Loc:           %s\n", Str_2_Loc);
-  // my_print ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
-  // my_print ("\n");
+  my_print(hartid, "Str_2_Loc:           "); my_print(hartid, Str_2_Loc); my_print(hartid, "\n");
+  my_print(hartid, "        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
 
   User_Time = End_Time - Begin_Time;
 
   if (User_Time < Too_Small_Time)
   {
-    // my_print ("Measured time too small to obtain meaningful results\n");
-    // my_print ("Please increase number of runs\n");
-    // my_print ("\n");
+    // my_print("Measured time too small to obtain meaningful results\n");
+    // my_print("Please increase number of runs\n");
+    // my_print("\n");
   }
   else
   {
@@ -451,15 +405,15 @@ dhrystone_main ()
     Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
                         / (float) User_Time;
 #endif
-    my_print ("Microseconds for one run through Dhrystone: ");
-    //my_print ("%6.1f \n", Microseconds);
-    // my_print ("%d \n", (int)Microseconds);
-    my_print ("Dhrystones per Second:                      ");
-    //my_print ("%6.1f \n", Dhrystones_Per_Second);
-    // my_print ("%d \n", (int)Dhrystones_Per_Second);
-    my_print ("\n");
+    my_print(hartid, "Microseconds for one run through Dhrystone: ");
+    //my_print("%6.1f \n", Microseconds);
+    // my_print("%d \n", (int)Microseconds);
+    my_print(hartid, "Dhrystones per Second:                      ");
+    //my_print("%6.1f \n", Dhrystones_Per_Second);
+    // my_print("%d \n", (int)Dhrystones_Per_Second);
+    my_print(hartid, "\n");
   }
-  my_print("Dhrystone finished!\n");
+  my_print(hartid, "Dhrystone finished!\n");
   // SIMDEV_CORE_DONE = 0; // <--- Signal an deinen SystemC-Simulator
   
 }
