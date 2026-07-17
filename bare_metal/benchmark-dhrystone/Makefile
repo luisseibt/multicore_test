@@ -6,7 +6,8 @@ DHRY-CFLAGS := -O3 -DTIME -DNOENUM -Wno-implicit
 DHRY-CFLAGS += -fno-builtin-printf -fno-common -falign-functions=4
 
 # 3. Unsere speziellen Bare-Metal-Flags hinzufügen
-BARE_METAL_CFLAGS = -mcmodel=medany -nostdlib -g
+# BARE_METAL_CFLAGS = -mcmodel=medany -nostdlib -g
+BARE_METAL_CFLAGS = -mcmodel=medany -nostdlib
 
 # Alle CFLAGS zusammenbauen
 override CFLAGS += $(DHRY-CFLAGS) $(BARE_METAL_CFLAGS)

@@ -20,11 +20,11 @@
 // Deine bekannte Print-Funktion
 // Deine bestehende Funktion für Strings
 void my_print_char(unsigned long hartid, char c) {
-    if (hartid == 0) {
-        SIMDEV_SOUT_CORE0 = c;
-    } else {
-        SIMDEV_SOUT_CORE1 = c;
-    }
+    // if (hartid == 0) {
+    //     SIMDEV_SOUT_CORE0 = c;
+    // } else {
+    //     SIMDEV_SOUT_CORE1 = c;
+    // }
 }
 
 // Deine bestehende Funktion für Strings
