@@ -2,3 +2,8 @@
 	path = linux
 	url = https://github.com/luisseibt/avp64_sw.git
 	branch = riscv_linux
+
+[submodule "dhrystone"]
+	path = dhrystone
+	url = https://github.com/luisseibt/riscv-tests.git
+	branch = docker

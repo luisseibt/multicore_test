@@ -13,4 +13,4 @@ git submodule update --init --recursive
 For the remaining build instructions, please refer to the README located in the linux subdirectory.
 
 ## Dhrystone 
-Note: A refactor of the Dhrystone Benchmark is currently in progress.
+for building dhrystone please refer to the readme inside dhrystone 
