@@ -12,5 +12,8 @@ git submodule update --init --recursive
 
 For the remaining build instructions, please refer to the README located in the linux subdirectory.
 
-## Dhrystone 
-for building dhrystone please refer to the readme inside dhrystone 
+## Dhrystone
+```bash 
+git submodule update --init --recursive
+```
+For building dhrystone please refer to the readme inside dhrystone 
