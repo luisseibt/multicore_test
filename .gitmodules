@@ -7,3 +7,7 @@
 	path = dhrystone
 	url = https://github.com/luisseibt/riscv-tests.git
 	branch = docker
+
+[submodule "zephyr_tests"]
+	path = zephyr_tests
+	url = https://github.com/luisseibt/zephyr_tests.git
